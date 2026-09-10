@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import Dict
 from backend.app.core.config import settings
+from backend.app.models import get_model_provider
 
 router = APIRouter(prefix="/api", tags=["health"])
 
@@ -23,7 +24,17 @@ class HealthResponse(BaseModel):
 
 
 @router.get("/health", response_model=HealthResponse)
-def get_health() -> HealthResponse:
+async def get_health() -> HealthResponse:
+    provider = get_model_provider()
+    provider_health = await provider.health()
+    
+    model_infra_status = "READY" if provider_health.reachable else "UNAVAILABLE"
+    model_infra_desc = (
+        f"Local model provider active at {provider_health.endpoint} with {len(provider_health.installed_models)} models."
+        if provider_health.reachable
+        else f"Local model provider unreachable at {provider_health.endpoint}: {provider_health.error_message}"
+    )
+
     subsystem_states = {
         "api_backend": SubsystemStatus(
             status="READY",
@@ -31,9 +42,9 @@ def get_health() -> HealthResponse:
             description="Core FastAPI application and routing skeleton active."
         ),
         "model_infrastructure": SubsystemStatus(
-            status="PENDING",
+            status=model_infra_status,
             phase=1,
-            description="Local model provider abstraction scheduled for Phase 1."
+            description=model_infra_desc
         ),
         "model_registry": SubsystemStatus(
             status="PENDING",

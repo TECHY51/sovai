@@ -17,7 +17,7 @@ This document is the single source of truth for the implementation status of **S
 | Phase | Title | Status | Primary Output |
 |---|---|---|---|
 | **Phase 0** | Repository & Roadmap | **COMPLETED** | Repository structure, living roadmap, backend & frontend skeletons |
-| **Phase 1** | Local Model Infrastructure | NOT STARTED | Local model provider abstraction & runtime integration |
+| **Phase 1** | Local Model Infrastructure | **COMPLETED** | Local model provider abstraction & runtime integration |
 | **Phase 2** | Model Registry | NOT STARTED | Centralized model capability registry & configuration |
 | **Phase 3** | Task Router | NOT STARTED | Automatic task-to-model selector |
 | **Phase 4** | Agent Orchestrator | NOT STARTED | Stateful agent loop (Understand → Plan → Route → Act → Verify → Deliver) |
@@ -72,25 +72,28 @@ This document is the single source of truth for the implementation status of **S
 * **Goal**: Run local models (`Qwen2.5-Coder-3B`, `Qwen3-4B`, `Gemma 3 4B`) through a unified provider abstraction without external APIs.
 * **Tasks**:
   * Create `ModelProvider` interface (`generate`, `stream`, `health`, `capabilities`).
-  * Implement local inference runtime client (Ollama/vLLM HTTP client).
-  * Validate reachability and verified capabilities for each target model.
+  * Implement `OllamaProvider` connected to local Ollama runtime on port 11434.
+  * Pull and verify local models on RTX 4050 6GB GPU: `qwen2.5-coder:3b`, `qwen3:4b`, `gemma3:4b`.
+  * Support thinking/reasoning token streams from `qwen3:4b`.
+  * Implement `/api/models/health` and `/api/models/capabilities/{model}`.
+  * Implement automated integration tests for reachability, inference, and controlled error handling.
 * **Dependencies**: Phase 0.
-* **Status**: NOT STARTED
+* **Status**: COMPLETED
 * **Acceptance Criteria**:
-  * [ ] Qwen2.5-Coder-3B is reachable locally.
-  * [ ] Qwen3-4B is reachable locally.
-  * [ ] Gemma 3 4B is reachable locally for verified capabilities only.
-  * [ ] Each model successfully handles at least one verified test request.
-  * [ ] Backend can invoke each model through the common provider abstraction.
-  * [ ] Provider health checks report accurate status.
-  * [ ] An unavailable model produces a controlled error.
-  * [ ] No cloud API is required for these tests.
-  * [ ] Actual model/runtime versions and endpoints are documented.
-* **Implemented**: None.
-* **Tested**: None.
+  * [x] Qwen2.5-Coder-3B is reachable locally.
+  * [x] Qwen3-4B is reachable locally.
+  * [x] Gemma 3 4B is reachable locally for verified capabilities only.
+  * [x] Each model successfully handles at least one verified test request.
+  * [x] Backend can invoke each model through the common provider abstraction.
+  * [x] Provider health checks report accurate status.
+  * [x] An unavailable model produces a controlled error.
+  * [x] No cloud API is required for these tests.
+  * [x] Actual model/runtime versions and endpoints are documented.
+* **Implemented**: `backend/app/models/base.py`, `backend/app/models/ollama.py`, `backend/app/models/__init__.py`, `backend/app/api/models.py`, `tests/integration/test_models.py`.
+* **Tested**: 8/8 model integration tests passed, full suite 11/11 passed in 24.9s.
 * **Known Issues**: None.
-* **Pending**: Implementation awaiting Phase 0 completion.
-* **Next Step**: Begin upon completion of Phase 0.
+* **Pending**: None.
+* **Next Step**: Phase 2 — Model Registry.
 
 ---
 

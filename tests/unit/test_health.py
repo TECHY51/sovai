@@ -35,9 +35,13 @@ def test_subsystem_readiness_accuracy():
     assert subsystems["api_backend"]["status"] == "READY"
     assert subsystems["api_backend"]["phase"] == 0
 
-    # Model infrastructure must NOT falsely claim completion
-    assert subsystems["model_infrastructure"]["status"] == "PENDING"
+    # Model infrastructure is READY for Phase 1
+    assert subsystems["model_infrastructure"]["status"] == "READY"
     assert subsystems["model_infrastructure"]["phase"] == 1
+
+    # Model registry must be PENDING for Phase 2
+    assert subsystems["model_registry"]["status"] == "PENDING"
+    assert subsystems["model_registry"]["phase"] == 2
 
     # Router must NOT falsely claim completion
     assert subsystems["task_router"]["status"] == "PENDING"
