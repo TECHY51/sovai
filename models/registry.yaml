@@ -1,0 +1,71 @@
+# ==============================================================================
+# SovAI — Model Registry Configuration
+# ==============================================================================
+
+version: "1.0"
+
+models:
+  - id: "qwen2.5-coder-3b"
+    name: "Qwen2.5-Coder-3B"
+    type: "coding"
+    provider: "ollama"
+    endpoint: "http://127.0.0.1:11434"
+    tag: "qwen2.5-coder:3b"
+    status: "available"
+    capabilities:
+      supports_vision: false
+      supports_tools: true
+      supports_streaming: true
+      context_window: 32768
+      parameter_size: "3.1B"
+      quantization: "Q4_K_M"
+    description: "Specialized model for Python code generation, syntax validation, and sandbox repair."
+
+  - id: "qwen3-4b"
+    name: "Qwen3-4B"
+    type: "reasoning"
+    provider: "ollama"
+    endpoint: "http://127.0.0.1:11434"
+    tag: "qwen3:4b"
+    status: "available"
+    capabilities:
+      supports_vision: false
+      supports_tools: true
+      supports_streaming: true
+      supports_thinking: true
+      context_window: 262144
+      parameter_size: "4.0B"
+      quantization: "Q4_K_M"
+    description: "Specialized reasoning model for industrial multi-step planning, SOP analysis, and thinking trace synthesis."
+
+  - id: "gemma3-4b"
+    name: "Gemma 3 4B"
+    type: "vision"
+    provider: "ollama"
+    endpoint: "http://127.0.0.1:11434"
+    tag: "gemma3:4b"
+    status: "available"
+    capabilities:
+      supports_vision: true
+      supports_tools: false
+      supports_streaming: true
+      context_window: 131072
+      parameter_size: "4.3B"
+      quantization: "Q4_K_M"
+    description: "Specialized multimodal vision model for scanned document inspection, P&ID visual analysis, and image interpretation."
+
+  - id: "offline-test-model"
+    name: "Offline Sample Model"
+    type: "reasoning"
+    provider: "ollama"
+    endpoint: "http://127.0.0.1:11434"
+    tag: "nonexistent-model:99b"
+    status: "unavailable"
+    capabilities:
+      supports_vision: false
+      supports_tools: false
+      supports_streaming: true
+      context_window: 4096
+      parameter_size: "99B"
+      quantization: "Q4_K_M"
+    description: "Configured offline model used to verify controlled unavailability detection."

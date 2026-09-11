@@ -4,6 +4,9 @@ from contextlib import asynccontextmanager
 from backend.app.core.config import settings
 from backend.app.api.health import router as health_router
 from backend.app.api.models import router as models_router
+from backend.app.api.router import router as router_router
+from backend.app.api.agent import router as agent_router
+from backend.app.api.tools import router as tools_router
 
 
 @asynccontextmanager
@@ -28,6 +31,9 @@ app.add_middleware(
 
 app.include_router(health_router)
 app.include_router(models_router)
+app.include_router(router_router)
+app.include_router(agent_router)
+app.include_router(tools_router)
 
 
 @app.get("/")

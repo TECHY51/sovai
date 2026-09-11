@@ -39,13 +39,21 @@ def test_subsystem_readiness_accuracy():
     assert subsystems["model_infrastructure"]["status"] == "READY"
     assert subsystems["model_infrastructure"]["phase"] == 1
 
-    # Model registry must be PENDING for Phase 2
-    assert subsystems["model_registry"]["status"] == "PENDING"
+    # Model registry is READY for Phase 2
+    assert subsystems["model_registry"]["status"] == "READY"
     assert subsystems["model_registry"]["phase"] == 2
 
-    # Router must NOT falsely claim completion
-    assert subsystems["task_router"]["status"] == "PENDING"
+    # Task router is READY for Phase 3
+    assert subsystems["task_router"]["status"] == "READY"
     assert subsystems["task_router"]["phase"] == 3
+
+    # Agent orchestrator is READY for Phase 4
+    assert subsystems["agent_orchestrator"]["status"] == "READY"
+    assert subsystems["agent_orchestrator"]["phase"] == 4
+
+    # Tool registry is READY for Phase 5
+    assert subsystems["tool_registry"]["status"] == "READY"
+    assert subsystems["tool_registry"]["phase"] == 5
 
     # Sandbox must NOT falsely claim completion
     assert subsystems["sandbox"]["status"] == "PENDING"

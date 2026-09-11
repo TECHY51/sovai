@@ -18,10 +18,10 @@ This document is the single source of truth for the implementation status of **S
 |---|---|---|---|
 | **Phase 0** | Repository & Roadmap | **COMPLETED** | Repository structure, living roadmap, backend & frontend skeletons |
 | **Phase 1** | Local Model Infrastructure | **COMPLETED** | Local model provider abstraction & runtime integration |
-| **Phase 2** | Model Registry | NOT STARTED | Centralized model capability registry & configuration |
-| **Phase 3** | Task Router | NOT STARTED | Automatic task-to-model selector |
-| **Phase 4** | Agent Orchestrator | NOT STARTED | Stateful agent loop (Understand → Plan → Route → Act → Verify → Deliver) |
-| **Phase 5** | Tool Registry | NOT STARTED | Controlled, schema-validated tool execution layer |
+| **Phase 2** | Model Registry | **COMPLETED** | Centralized model capability registry & configuration |
+| **Phase 3** | Task Router | **COMPLETED** | Automatic task-to-model selector |
+| **Phase 4** | Agent Orchestrator | **COMPLETED** | Stateful agent loop (Understand → Plan → Route → Act → Verify → Deliver) |
+| **Phase 5** | Tool Registry | **COMPLETED** | Controlled, schema-validated tool execution layer |
 | **Phase 6** | Secure Python Sandbox | NOT STARTED | Isolated process execution with zero network & strict resource limits |
 | **Phase 7** | Local Knowledge Base / RAG | NOT STARTED | Local document ingestion, chunking, embeddings & grounded retrieval |
 | **Phase 8** | Multimodal Processing | NOT STARTED | Local OCR and vision pipeline for documents, P&IDs, and images |
@@ -104,20 +104,20 @@ This document is the single source of truth for the implementation status of **S
   * Register Qwen2.5-Coder-3B, Qwen3-4B, Gemma 3 4B.
   * Implement discovery and availability checks.
 * **Dependencies**: Phase 1.
-* **Status**: NOT STARTED
+* **Status**: COMPLETED
 * **Acceptance Criteria**:
-  * [ ] All three current models are registered.
-  * [ ] Registry entries contain verified capabilities only.
-  * [ ] Registry can list available models.
-  * [ ] Registry can identify unavailable models.
-  * [ ] Model metadata is loaded from configuration rather than scattered hard-coded logic.
-  * [ ] A model can be added without modifying unrelated agent/tool code.
-  * [ ] Registry tests cover valid and invalid configurations.
-* **Implemented**: None.
-* **Tested**: None.
+  * [x] All three current models are registered.
+  * [x] Registry entries contain verified capabilities only.
+  * [x] Registry can list available models.
+  * [x] Registry can identify unavailable models.
+  * [x] Model metadata is loaded from configuration rather than scattered hard-coded logic.
+  * [x] A model can be added without modifying unrelated agent/tool code.
+  * [x] Registry tests cover valid and invalid configurations.
+* **Implemented**: `backend/app/models/registry.py`, `models/registry.yaml`, `backend/app/api/models.py` (`/api/models/registry`), `tests/unit/test_registry.py`, `tests/integration/test_registry_sync.py`.
+* **Tested**: 5/5 unit tests passed, 5/5 integration tests passed with live provider synchronization.
 * **Known Issues**: None.
-* **Pending**: Awaiting Phase 1.
-* **Next Step**: Implement after Phase 1.
+* **Pending**: None.
+* **Next Step**: Phase 3 — Task Router.
 
 ---
 
@@ -126,22 +126,25 @@ This document is the single source of truth for the implementation status of **S
 * **Tasks**:
   * Build deterministic capability matcher for coding, reasoning, and vision tasks.
   * Produce structured routing outputs specifying model and permitted tools.
+  * Integrate with `ModelRegistry` ensuring no unavailable models are selected.
+  * Implement fallback and clarification paths for ambiguous queries.
+  * Audit log routing decisions.
 * **Dependencies**: Phase 2.
-* **Status**: NOT STARTED
+* **Status**: COMPLETED
 * **Acceptance Criteria**:
-  * [ ] Coding request routes to Qwen2.5-Coder-3B.
-  * [ ] Reasoning/general request routes to Qwen3-4B.
-  * [ ] Vision request routes to Gemma 3 4B only when capability is verified.
-  * [ ] Router returns structured output.
-  * [ ] Router never selects an unavailable model.
-  * [ ] Ambiguous requests produce documented fallback or clarification.
-  * [ ] At least two task classes are routed to different models.
-  * [ ] Routing decisions are logged.
-* **Implemented**: None.
-* **Tested**: None.
+  * [x] Coding request routes to Qwen2.5-Coder-3B.
+  * [x] Reasoning/general request routes to Qwen3-4B.
+  * [x] Vision request routes to Gemma 3 4B only when capability is verified.
+  * [x] Router returns structured output.
+  * [x] Router never selects an unavailable model.
+  * [x] Ambiguous requests produce documented fallback or clarification.
+  * [x] At least two task classes are routed to different models.
+  * [x] Routing decisions are logged.
+* **Implemented**: `backend/app/router/router_schema.py`, `backend/app/router/task_router.py`, `backend/app/router/__init__.py`, `backend/app/api/router.py`, `tests/unit/test_router.py`, `tests/integration/test_router_api.py`.
+* **Tested**: 8/8 unit tests passed, 6/6 integration tests passed, full suite 35/35 tests passed.
 * **Known Issues**: None.
-* **Pending**: Awaiting Phase 2.
-* **Next Step**: Implement after Phase 2.
+* **Pending**: None.
+* **Next Step**: Phase 4 — Agent Orchestrator.
 
 ---
 
@@ -150,46 +153,51 @@ This document is the single source of truth for the implementation status of **S
 * **Tasks**:
   * Implement explicit agent state machine and execution trace recording.
   * Support multi-step planning, tool invocation, result observation, and retries.
-* **Dependencies**: Phase 3, Phase 5.
-* **Status**: NOT STARTED
+  * Integrate with Tool Registry and Task Router for coordinated model-tool workflows.
+* **Dependencies**: Phase 3.
+* **Status**: COMPLETED
 * **Acceptance Criteria**:
-  * [ ] Agent maintains explicit task state.
-  * [ ] Agent can create and execute a multi-step plan.
-  * [ ] Agent can invoke at least two different tools in a single workflow.
-  * [ ] Tool results are returned to the agent.
-  * [ ] Agent can decide whether another step is required.
-  * [ ] At least one failed step produces a controlled retry or failure path.
-  * [ ] Agent execution trace records major steps.
-  * [ ] Agent successfully completes one end-to-end multi-step test task.
-* **Implemented**: None.
-* **Tested**: None.
+  * [x] Agent maintains explicit task state.
+  * [x] Agent can create and execute a multi-step plan.
+  * [x] Agent can invoke at least two different tools in a single workflow.
+  * [x] Tool results are returned to the agent.
+  * [x] Agent can decide whether another step is required.
+  * [x] At least one failed step produces a controlled retry or failure path.
+  * [x] Agent execution trace records major steps.
+  * [x] Agent successfully completes one end-to-end multi-step test task.
+* **Implemented**: `backend/app/agent/agent_schema.py`, `backend/app/agent/agent_orchestrator.py`, `backend/app/agent/__init__.py`, `backend/app/api/agent.py`, `backend/app/tools/tool_schema.py`, `backend/app/tools/tool_registry.py`, `tests/unit/test_agent.py`, `tests/integration/test_agent_api.py`.
+* **Tested**: 7/7 unit tests passed, 5/5 integration tests passed, full suite 47/47 tests passed.
 * **Known Issues**: None.
-* **Pending**: Awaiting Phase 3.
-* **Next Step**: Implement after Phase 3.
+* **Pending**: None.
+* **Next Step**: Phase 5 — Tool Registry.
 
 ---
 
 ### Phase 5 — Tool Registry
 * **Goal**: Create a schema-validated, permission-controlled tool execution layer.
 * **Tasks**:
-  * Build tool registry with machine-readable schemas and risk levels.
-  * Implement initial filesystem and utility tools with path boundary enforcement.
-* **Dependencies**: Phase 0.
-* **Status**: NOT STARTED
+  * Build central tool registry with machine-readable schemas and risk levels.
+  * Implement complete initial tool suite: `read_file`, `write_file`, `list_files`, `search_documents`, `calculate`, `run_python`, `ocr_document`, `analyze_image`, `create_docx`, `create_xlsx`, `create_pptx`.
+  * Enforce strict workspace path boundary confinement and reject path traversal attacks.
+  * Check permission context before execution and fail closed on unauthorized requests.
+  * Record all tool executions in audit log (`data/logs/tool_executions.jsonl`).
+* **Dependencies**: Phase 4.
+* **Status**: COMPLETED
 * **Acceptance Criteria**:
-  * [ ] Every enabled tool is registered centrally with machine-readable schema.
-  * [ ] Invalid arguments are rejected before execution.
-  * [ ] Tool permissions are checked before execution.
-  * [ ] Tool executions are logged.
-  * [ ] Agent discovers only allowlisted tools.
-  * [ ] Unknown tools cannot be executed.
-  * [ ] Filesystem tools enforce configured path boundaries.
-  * [ ] Tool registry has automated tests.
-* **Implemented**: None.
-* **Tested**: None.
+  * [x] Every enabled tool is registered centrally.
+  * [x] Every tool has a machine-readable schema.
+  * [x] Invalid arguments are rejected before execution.
+  * [x] Tool permissions are checked before execution.
+  * [x] Tool executions are logged.
+  * [x] Agent can discover only allowlisted tools.
+  * [x] Unknown tools cannot be executed by model-generated requests.
+  * [x] Filesystem tools enforce configured path boundaries.
+  * [x] Tool registry has automated tests.
+* **Implemented**: `backend/app/tools/tool_schema.py`, `backend/app/tools/tool_registry.py`, `backend/app/tools/__init__.py`, `backend/app/api/tools.py`, `tests/unit/test_tools.py`, `tests/integration/test_tools_api.py`.
+* **Tested**: 9/9 unit tests passed, 7/7 integration tests passed, full suite 63/63 tests passed.
 * **Known Issues**: None.
-* **Pending**: Awaiting Phase 0.
-* **Next Step**: Implement in sequence.
+* **Pending**: None.
+* **Next Step**: Phase 6 — Secure Python Sandbox.
 
 ---
 

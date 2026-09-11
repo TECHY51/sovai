@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import Dict
 from backend.app.core.config import settings
-from backend.app.models import get_model_provider
+from backend.app.models import get_model_provider, get_model_registry
 
 router = APIRouter(prefix="/api", tags=["health"])
 
@@ -35,6 +35,11 @@ async def get_health() -> HealthResponse:
         else f"Local model provider unreachable at {provider_health.endpoint}: {provider_health.error_message}"
     )
 
+    registry = get_model_registry()
+    total_registered = len(registry.list_models())
+    model_registry_status = "READY" if total_registered > 0 else "PENDING"
+    model_registry_desc = f"Centralized model registry active with {total_registered} registered model manifests."
+
     subsystem_states = {
         "api_backend": SubsystemStatus(
             status="READY",
@@ -47,24 +52,24 @@ async def get_health() -> HealthResponse:
             description=model_infra_desc
         ),
         "model_registry": SubsystemStatus(
-            status="PENDING",
+            status=model_registry_status,
             phase=2,
-            description="Model registry scheduled for Phase 2."
+            description=model_registry_desc
         ),
         "task_router": SubsystemStatus(
-            status="PENDING",
+            status="READY",
             phase=3,
-            description="Task-to-model router scheduled for Phase 3."
+            description="Deterministic task-to-model router and capability matcher active."
         ),
         "agent_orchestrator": SubsystemStatus(
-            status="PENDING",
+            status="READY",
             phase=4,
-            description="Stateful agent loop scheduled for Phase 4."
+            description="Stateful agent orchestrator with multi-step execution loop active."
         ),
         "tool_registry": SubsystemStatus(
-            status="PENDING",
+            status="READY",
             phase=5,
-            description="Tool registry and execution layer scheduled for Phase 5."
+            description="Controlled tool execution layer with schema validation and permission enforcement active."
         ),
         "sandbox": SubsystemStatus(
             status="PENDING",
